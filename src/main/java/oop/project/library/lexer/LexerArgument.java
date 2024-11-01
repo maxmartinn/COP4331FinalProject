@@ -11,6 +11,7 @@ public class LexerArgument {
     //  An id either has one hyphen and a single non-whitespace character (that isn't '-')
     //  Or an id has two hyphens and two or more non-whitespace characters (The first non-whitespace must not be '-')
     //If no id is given then it is a positional argument
+    //  Only the last positional argument may have the mode MULTI_PARAMETER
     List<Pattern> flags = new ArrayList<>();
 
     static Pattern idPattern = Pattern.compile("^-[^\\s-]$|^--[^\\s-]\\S+$");
