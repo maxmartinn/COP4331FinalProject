@@ -18,7 +18,6 @@ public class LexerArgument {
     static Pattern multiPattern = Pattern.compile("^--[^\\s-]\\S+$");
 
     public enum Mode{
-        PRESENCE,//Yes or no, is the flag there
         COUNT,//How many times is the flag there (Both -vvv and -v -v -v, should give the same result)
         SINGLE_PARAMETER,//Get the string that comes after the flag
         MULTI_PARAMETER//The flag must be placed before every input for this argument
@@ -63,18 +62,17 @@ public class LexerArgument {
     }
 
     public List<String> extract(List<String> cliArguments){
-
         ArrayList<String> toReturn = new ArrayList<>();
         strings.clear();
         count = 0;
 
         boolean wasPreviousAMatch = false;
         for(String arg : cliArguments){
-            if(flags.stream().noneMatch(pattern -> pattern.matcher(arg).matches())){
+            if(!flags.isEmpty() && flags.stream().noneMatch(pattern -> pattern.matcher(arg).matches())){
                 //The current arg is not an id for this argument
                 if(wasPreviousAMatch){
                     wasPreviousAMatch = false;
-                    //In this case, what we have is a value for this argument
+                    //In this case, what we have is a value for this argument. So add it to the list of strings
                     switch(mode){
                         case SINGLE_PARAMETER -> {
                             if(strings.isEmpty()){
@@ -102,18 +100,45 @@ public class LexerArgument {
                 //If we get here, then we have found a flag for this argument
                 wasPreviousAMatch = true;
 
-                //Although only PRESENCE and COUNT will use this information, less logic means faster program
-                //It does not break functionality for either PARAMETER mode to record this as well
-                //A flag is guaranteed to have at least 2 characters
-                //If the second character is not a '-' then we have a single letter flag
-                if(arg.charAt(1) != '-'){
-                    count += arg.length() - 1;//Subtract off the '-' from the arg, to get the number of times the single letter was repeated
+                //If no flags are specified then we have a positional argument
+                if(flags.isEmpty()){
+                    count++;//Increment that we have seen the argument
+                    //Since it is positional, we add the current string to the list of strings
+                    switch(mode){
+                        case SINGLE_PARAMETER -> {
+                            if(strings.isEmpty()){
+                                strings.add(arg);
+                            }else{
+                                //Too many values have been given to this argument
+                                //TODO: Throw a proper error
+                                throw new RuntimeException();
+                            }
+                        }
+                        case MULTI_PARAMETER -> {
+                            strings.add(arg);
+                        }
+                        default -> {
+                            //Even though the previous argument was a flag, this LexerArgument does not use what comes after
+                            toReturn.add(arg);
+                        }
+                    }
                 }else{
-                    count++;//Increment that we have seen the flag again
+                    //This counts the number of times we see the flag
+                    //A flag is guaranteed to have at least 2 characters
+                    //If the second character is not a '-' then we have a single letter flag
+                    if(arg.charAt(1) != '-'){
+                        count += arg.length() - 1;//Subtract off the '-' from the arg, to get the number of times the single letter was repeated
+                    }else{
+                        count++;//Increment that we have seen the flag again
+                    }
                 }
+
+
             }
         }
 
         return toReturn;
     }
+
+
 }

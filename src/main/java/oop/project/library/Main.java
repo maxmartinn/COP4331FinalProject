@@ -1,5 +1,6 @@
 package oop.project.library;
 
+import oop.project.library.lexer.Lexer;
 import oop.project.library.lexer.LexerArgument;
 import oop.project.library.scenarios.Result;
 import oop.project.library.scenarios.Scenarios;
@@ -9,50 +10,38 @@ import java.util.*;
 public class Main {
 
     public static void main(String[] args) {
-        LexerArgument hi = new LexerArgument(LexerArgument.Mode.PRESENCE, "-f", "--flag");
-        LexerArgument hi2 = new LexerArgument(LexerArgument.Mode.MULTI_PARAMETER, "-d", "--deets");
+        Lexer hi = new Lexer();
+        hi.addArgument("Verbosity", LexerArgument.Mode.COUNT, "-v", "--verbose");
+        hi.addArgument("Deets", LexerArgument.Mode.SINGLE_PARAMETER, "--deets");
 
-        List<String> inputs = Arrays.asList("-ffff", "Howdy", "-f", "-d", "These are the deets", "--deets", "Ye-haw");
+        Lexer bye = new Lexer();
+        bye.addArgument("Verbosity", LexerArgument.Mode.COUNT, "-v", "--verbose");
+        bye.addArgument("Deets", LexerArgument.Mode.MULTI_PARAMETER, "--deets");
+        bye.addArgument("Babel", LexerArgument.Mode.MULTI_PARAMETER);
 
-        //LexerArgument hi2 = new LexerArgument(LexerArgument.Mode.SINGLE_PARAMETER, "-d", "--deets");
-        //List<String> inputs = Arrays.asList("-ffff", "Howdy", "-f", "-d", "These are the deets", "--deets", "Ye-haw");//Should crash because two values were given to a one parameter argument
+        List<String> inputs1 = Arrays.asList("SUP", "-vvv", "poopy", "--deets", "This is what's happening");
+        List<String> inputs2 = Arrays.asList("SUP", "-vvv", "poopy", "--deets", "This is what's happening", "--deets", "And its happening again");
 
 
-        inputs = hi.extract(inputs);
-
-        System.out.println("Remaining Inputs to Lexer");
-        for (var remaining : inputs) {
-            System.out.println(remaining);
+        var remains1 = hi.parse(inputs1);
+        //var remains1 = hi.parse(inputs2);//Should throw an error because two values for deets are given
+        hi.printResult();
+        System.out.println("Unparsed");
+        for(var entry : remains1){
+            System.out.println("\t" + entry);
         }
-
-
-        System.out.println();
-        System.out.println("Extracted result");
-        System.out.println("Count: " + hi.count);
-
-        for (var bye : hi.strings) {
-            System.out.println(bye);
-        }
-
         System.out.println();
 
-
-        inputs = hi2.extract(inputs);
-
-        System.out.println("Remaining Inputs to Lexer");
-        for(var remaining : inputs){
-            System.out.println(remaining);
+        var remains2 = bye.parse(inputs1);
+        bye.printResult();
+        System.out.println("Unparsed");
+        for(var entry : remains2){
+            System.out.println("\t" + entry);
         }
-
-
         System.out.println();
-        System.out.println("Extracted result");
-        System.out.println("Count: " + hi2.count);
 
-        for(var bye : hi2.strings){
-            System.out.println(bye);
-        }
 
+        //This is code from the template, do not remove
         //var scanner = new Scanner(System.in);
         //while (true) {
         //    var input = scanner.nextLine();
