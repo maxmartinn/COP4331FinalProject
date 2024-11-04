@@ -1,5 +1,9 @@
 package oop.project.library.scenarios;
 
+import oop.project.library.lexer.Lexer;
+import oop.project.library.parser.*;
+
+import java.time.LocalDate;
 import java.util.Map;
 
 public class Scenarios {
@@ -29,7 +33,23 @@ public class Scenarios {
     private static Result<Map<String, Object>> lex(String arguments) {
         //Note: For ease of testing, this should use your Lexer implementation
         //directly rather and return those values.
-        throw new UnsupportedOperationException("TODO"); //TODO
+        Lexer hi = new Lexer();
+
+        hi.parse(arguments);
+
+        if(!hi.literals.isEmpty()){
+            return new Result.Success<>(Map.of("0", hi.literals.getFirst()));
+        }
+
+        if(!hi.flags.isEmpty()){
+            for(var entry : hi.flags.entrySet()){
+                if(!entry.getValue().isEmpty()){
+                    return new Result.Success<>(Map.of("0", entry.getValue().getFirst()));
+                }
+            }
+        }
+
+        return new Result.Failure<>(null);
     }
 
     private static Result<Map<String, Object>> add(String arguments) {
@@ -40,37 +60,142 @@ public class Scenarios {
         //var left = IntegerParser.parse(args.positional[0]);
         //This is fine - our goal right now is to implement this functionality
         //so we can build up the actual command system in Part 3.
-        throw new UnsupportedOperationException("TODO"); //TODO
+        Lexer hi = new Lexer();
+        hi.parse(arguments);
+
+        if(hi.literals.size() != 2){
+            return new Result.Failure<>(null);
+        }
+
+        try{
+            IntegerParser intParse = new IntegerParser();
+            int left = intParse.parse(hi.literals.get(0));
+            int right = intParse.parse(hi.literals.get(1));
+
+            return new Result.Success<>(Map.of("left", left, "right", right));
+        }catch (NumberFormatException e){
+            return new Result.Failure<>(null);
+        }
+
+
     }
 
     private static Result<Map<String, Object>> sub(String arguments) {
-        throw new UnsupportedOperationException("TODO"); //TODO
+        Lexer hi = new Lexer();
+        hi.parse(arguments);
+
+        if(!hi.flags.containsKey("--left") || !hi.flags.containsKey("--right")){
+            return new Result.Failure<>(null);
+        }
+
+        try{
+            DoubleParser doubleParse = new DoubleParser();
+            double left = doubleParse.parse(hi.flags.get("--left").getFirst());
+            double right = doubleParse.parse(hi.flags.get("--right").getFirst());
+
+            return new Result.Success<>(Map.of("left", left, "right", right));
+        }catch (Exception e){
+            return new Result.Failure<>(null);
+        }
     }
 
     private static Result<Map<String, Object>> fizzbuzz(String arguments) {
-        //Note: This is the first command your library may not support all the
-        //functionality to implement yet. This is fine - parse the number like
-        //normal, then check the range manually. The goal is to get a feel for
-        //the validation involved even if it's not in the library yet.
-        //var number = IntegerParser.parse(lexedArguments.get("number"));
-        //if (number < 1 || number > 100) ...
-        throw new UnsupportedOperationException("TODO"); //TODO
+        Lexer hi = new Lexer();
+        hi.parse(arguments);
+
+        if(hi.literals.size() != 1){
+            return new Result.Failure<>(null);
+        }
+
+        try{
+            FizzBuzzParser fizzBuzzParser = new FizzBuzzParser();
+            int number = fizzBuzzParser.parse(hi.literals.get(0));
+
+            return new Result.Success<>(Map.of("number", number));
+        }catch (Exception e){
+            return new Result.Failure<>(null);
+        }
+
     }
 
     private static Result<Map<String, Object>> difficulty(String arguments) {
-        throw new UnsupportedOperationException("TODO"); //TODO
+        Lexer hi = new Lexer();
+        hi.parse(arguments);
+
+        if(hi.literals.size() != 1){
+            return new Result.Failure<>(null);
+        }
+
+        try{
+            DifficultyParser difficultyParser = new DifficultyParser();
+            String difficulty = difficultyParser.parse(hi.literals.get(0));
+
+            return new Result.Success<>(Map.of("difficulty", difficulty));
+        }catch (Exception e){
+            return new Result.Failure<>(null);
+        }
     }
 
     private static Result<Map<String, Object>> echo(String arguments) {
-        throw new UnsupportedOperationException("TODO"); //TODO
+        Lexer hi = new Lexer();
+        hi.parse(arguments);
+
+        if(hi.literals.size() > 1){
+            return new Result.Failure<>(null);
+        }else if(hi.literals.isEmpty()){
+            return new Result.Success<>(Map.of("message", "Echo, echo, echo!"));
+        }
+
+        try{
+            StringParser stringParser = new StringParser();
+            String message = stringParser.parse(hi.literals.get(0));
+
+            return new Result.Success<>(Map.of("message", message));
+        }catch (Exception e){
+            return new Result.Failure<>(null);
+        }
     }
 
     private static Result<Map<String, Object>> search(String arguments) {
-        throw new UnsupportedOperationException("TODO"); //TODO
+        Lexer hi = new Lexer();
+        hi.parse(arguments);
+
+        if(hi.literals.size() != 1){
+            return new Result.Failure<>(null);
+        }
+
+        try{
+            StringParser stringParser = new StringParser();
+            String term = stringParser.parse(hi.literals.get(0));
+            boolean isCaseInsensitive = false;
+            if(hi.flags.containsKey("--case-insensitive")){
+                BooleanParser booleanParser = new BooleanParser();
+                isCaseInsensitive = booleanParser.parse(hi.flags.get("--case-insensitive").getFirst());
+            }
+
+            return new Result.Success<>(Map.of("term", term, "case-insensitive", isCaseInsensitive));
+        }catch (Exception e){
+            return new Result.Failure<>(null);
+        }
     }
 
     private static Result<Map<String, Object>> weekday(String arguments) {
-        throw new UnsupportedOperationException("TODO"); //TODO
+        Lexer hi = new Lexer();
+        hi.parse(arguments);
+
+        if(hi.literals.size() != 1){
+            return new Result.Failure<>(null);
+        }
+
+        try{
+            LocalDateParser localDateParser = new LocalDateParser();
+            LocalDate date = localDateParser.parse(hi.literals.get(0));
+
+
+            return new Result.Success<>(Map.of("date", date));
+        }catch (Exception e){
+            return new Result.Failure<>(null);
+        }
     }
 
 }

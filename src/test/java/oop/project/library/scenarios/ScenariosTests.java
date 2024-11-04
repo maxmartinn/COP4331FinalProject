@@ -30,7 +30,7 @@ class ScenariosTests {
                 """, Map.of("0", "-2.0")),
             Arguments.of("Flag", """
                 lex --flag value
-                """, Map.of("0", "-2.0")),
+                """, Map.of("0", "value")),
             Arguments.of("Flag Without Value", """
                 lex --flag
                 """, null)

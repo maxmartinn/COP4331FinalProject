@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class LexerArgument {
+public class LexerArgumentOld {
     //These are all the ways that a flag can be identified
     //All ids must be valid for this regex ^-[^\s-]$|^--[^\s-]\S+$
     //  An id either has one hyphen and a single non-whitespace character (that isn't '-')
@@ -30,7 +30,7 @@ public class LexerArgument {
     public List<String> strings = new ArrayList<>();//If we find the flag multiple times
 
 
-    public LexerArgument(Mode mode, String... ids){
+    public LexerArgumentOld(Mode mode, String... ids){
         if(ids.length == 0 && mode != Mode.SINGLE_PARAMETER && mode != Mode.MULTI_PARAMETER){
             //Invalid configuration
             //In this state the Argument is positional

@@ -1,71 +1,49 @@
 package oop.project.library.lexer;
 
+import org.checkerframework.checker.units.qual.A;
+
 import java.util.AbstractMap;
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-
-//This class takes the command line argument strings, and reorganizes them into lists of string that correspond to arguments
 public class Lexer {
-    //I think we should use python's rules for positional and keyword arguments
+    public static Pattern singleArgument = Pattern.compile("\\S+");//Pattern.compile("\"[^\"]*\"|\\S+");//Commented out because quoted strings are added yet
+    public static Pattern literal = Pattern.compile("^-?[^-\\s]\\S*$");
+    public static Pattern flag = Pattern.compile("^--[^-\\s]\\S*$");
 
-    //Keyword arguments can break up positional arguments
-    //Only the last positional argument can have variable length
-    //Keyword arguments may not be of variable length
+    public List<String> literals = new ArrayList<>();
+    public AbstractMap<String, List<String>> flags = new HashMap<>();
 
-    //We should also have presence flags
-    //We should also have counted flags
+    public List<String> parse(String args){
+        List<String> argList = new ArrayList<>();
 
-    //We should have mutually exclusive flags
-    //We should have mutually inclusive flags
-
-    //Yes this needs to have the LinkedHashMap type for type safety reasons
-    //We need to guarantee that the order of the insertion is the order of iteration
-    //A linked hash map has this property
-    public LinkedHashMap<String, LexerArgument> arguments = new LinkedHashMap<>();
-    private boolean haveAddedMultivaluePositional = false;
-
-    public void addArgument(String name, LexerArgument.Mode mode, String ... ids){
-        if(arguments.containsKey(name)){
-            //Do not redefine arguments
-            //TODO: Throw a proper error
-            throw new RuntimeException();
-        }
-        if(ids.length == 0 && mode == LexerArgument.Mode.MULTI_PARAMETER){
-            if(haveAddedMultivaluePositional){
-                //This is invalid, only the last positional argument is allowed to be a multi value positional argument
-                //TODO: throw a proper error
-                throw new RuntimeException();
-            }
-            haveAddedMultivaluePositional = true;//Since we are adding a multi value positional argument, set the boolean correctly
+        Matcher matcher = singleArgument.matcher(args);
+        while (matcher.find()) {
+            argList.add(matcher.group()); // Add each match to the list
         }
 
-        arguments.put(name, new LexerArgument(mode, ids));
-    }
+        String currentFlag = "";
+        boolean isFlag = false;
+        for(String entry : argList){
+            if(literal.matcher(entry).matches()){
+                if(isFlag){
+                    flags.get(currentFlag).add(entry);
+                }else{
+                    literals.add(entry);
+                }
 
-    //This parses the inputs list for arguments that correspond to this argument
-    //It removes those inputs from the list and returns what remains
-    public List<String> parse(List<String> args){
-        for (var entry : arguments.entrySet()) {
-            String name = entry.getKey();
-            LexerArgument argument = entry.getValue();
-            args = argument.extract(args);
-        }
-
-        return args;
-    }
-
-
-    //For debug purposes
-    public void printResult(){
-        for(var argument : arguments.entrySet()){
-            System.out.println(argument.getKey());
-            System.out.println("\t" + argument.getValue().count);
-            for(var entry : argument.getValue().strings){
-                System.out.println("\t" + entry);
+                isFlag = false;
+            }else if(flag.matcher(entry).matches()){
+                flags.put(entry, new ArrayList<>());
+                currentFlag = entry;
+                isFlag = true;
             }
         }
-    }
 
+
+        return argList;
+    }
 }
