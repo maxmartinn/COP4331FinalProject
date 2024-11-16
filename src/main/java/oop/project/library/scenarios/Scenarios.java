@@ -1,5 +1,6 @@
 package oop.project.library.scenarios;
 
+import oop.project.library.command.Command;
 import oop.project.library.lexer.Lexer;
 import oop.project.library.parser.*;
 
@@ -60,20 +61,15 @@ public class Scenarios {
         //var left = IntegerParser.parse(args.positional[0]);
         //This is fine - our goal right now is to implement this functionality
         //so we can build up the actual command system in Part 3.
-        Lexer hi = new Lexer();
-        hi.parse(arguments);
-
-        if(hi.literals.size() != 2){
-            return new Result.Failure<>(null);
-        }
-
+        Command add = new Command()
+                .addArgument("left", new IntegerParser(), true)
+                .addArgument("right", new IntegerParser(), true);;
         try{
-            IntegerParser intParse = new IntegerParser();
-            int left = intParse.parse(hi.literals.get(0));
-            int right = intParse.parse(hi.literals.get(1));
-
+            add.parse(arguments);
+            int left = (Integer)add.getArgument("left");
+            int right = (Integer)add.getArgument("right");
             return new Result.Success<>(Map.of("left", left, "right", right));
-        }catch (NumberFormatException e){
+        }catch (Exception e){
             return new Result.Failure<>(null);
         }
 
@@ -81,20 +77,18 @@ public class Scenarios {
     }
 
     private static Result<Map<String, Object>> sub(String arguments) {
-        Lexer hi = new Lexer();
-        hi.parse(arguments);
+        Command sub = new Command()
+            .addArgument("left", new DoubleParser(), "--left", true)
+            .addArgument("right", new DoubleParser(), "--right", true);
 
-        if(!hi.flags.containsKey("--left") || !hi.flags.containsKey("--right")){
-            return new Result.Failure<>(null);
-        }
 
-        try{
-            DoubleParser doubleParse = new DoubleParser();
-            double left = doubleParse.parse(hi.flags.get("--left").getFirst());
-            double right = doubleParse.parse(hi.flags.get("--right").getFirst());
+        try {
+            sub.parse(arguments);
+            double left = (Double)sub.getArgument("left");
+            double right = (Double)sub.getArgument("right");
 
             return new Result.Success<>(Map.of("left", left, "right", right));
-        }catch (Exception e){
+        } catch (Exception e){
             return new Result.Failure<>(null);
         }
     }
