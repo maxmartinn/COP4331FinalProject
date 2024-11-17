@@ -45,12 +45,7 @@ public class Command {
         lexer.parse(input);
         Set<String> remainingRequired = new HashSet<String>(requiredArguments);
 
-        lexer.flags.forEach((flag, rawValues ) -> {
-            if(rawValues.size() != 1){
-                //issue
-                //TODO: Throw an error
-                throw new RuntimeException("Too many values given for the flag: " + flag);
-            }
+        lexer.flags.forEach((flag, rawValue ) -> {
 
             if(!flagToName.containsKey(flag)){
                 //A flag was provided that doesn't exist
@@ -59,10 +54,10 @@ public class Command {
             }
 
             remainingRequired.remove(flagToName.get(flag));
-            rawArguments.put(flagToName.get(flag), rawValues.get(0));
+            rawArguments.put(flagToName.get(flag), rawValue);
         });
 
-        for(int i = 0; i < lexer.literals.size(); i++){
+        for(int i = 0; i < lexer.getLiterals().size(); i++){
             if(i >= positionalToName.size()){
                 //Too many positionals provided
                 //TODO: Throw an error
@@ -70,7 +65,7 @@ public class Command {
             }
 
             remainingRequired.remove(positionalToName.get(i));
-            rawArguments.put(positionalToName.get(i), lexer.literals.get(i));
+            rawArguments.put(positionalToName.get(i), lexer.getLiterals().get(i));
         }
 
         if(!remainingRequired.isEmpty()){

@@ -38,14 +38,14 @@ public class Scenarios {
 
         hi.parse(arguments);
 
-        if(!hi.literals.isEmpty()){
-            return new Result.Success<>(Map.of("0", hi.literals.getFirst()));
+        if(!hi.getLiterals().isEmpty()){
+            return new Result.Success<>(Map.of("0", hi.getLiterals().getFirst()));
         }
 
         if(!hi.flags.isEmpty()){
             for(var entry : hi.flags.entrySet()){
                 if(!entry.getValue().isEmpty()){
-                    return new Result.Success<>(Map.of("0", entry.getValue().getFirst()));
+                    return new Result.Success<>(Map.of("0", entry.getValue()));
                 }
             }
         }
@@ -97,13 +97,13 @@ public class Scenarios {
         Lexer hi = new Lexer();
         hi.parse(arguments);
 
-        if(hi.literals.size() != 1){
+        if(hi.getLiterals().size() != 1){
             return new Result.Failure<>(null);
         }
 
         try{
             FizzBuzzParser fizzBuzzParser = new FizzBuzzParser();
-            int number = fizzBuzzParser.parse(hi.literals.get(0));
+            int number = fizzBuzzParser.parse(hi.getLiterals().getFirst());
 
             return new Result.Success<>(Map.of("number", number));
         }catch (Exception e){
@@ -116,13 +116,13 @@ public class Scenarios {
         Lexer hi = new Lexer();
         hi.parse(arguments);
 
-        if(hi.literals.size() != 1){
+        if(hi.getLiterals().size() != 1){
             return new Result.Failure<>(null);
         }
 
         try{
             DifficultyParser difficultyParser = new DifficultyParser();
-            String difficulty = difficultyParser.parse(hi.literals.get(0));
+            String difficulty = difficultyParser.parse(hi.getLiterals().getFirst());
 
             return new Result.Success<>(Map.of("difficulty", difficulty));
         }catch (Exception e){
@@ -134,15 +134,15 @@ public class Scenarios {
         Lexer hi = new Lexer();
         hi.parse(arguments);
 
-        if(hi.literals.size() > 1){
+        if(hi.getLiterals().size() > 1){
             return new Result.Failure<>(null);
-        }else if(hi.literals.isEmpty()){
+        }else if(hi.getLiterals().isEmpty()){
             return new Result.Success<>(Map.of("message", "Echo, echo, echo!"));
         }
 
         try{
             StringParser stringParser = new StringParser();
-            String message = stringParser.parse(hi.literals.get(0));
+            String message = stringParser.parse(hi.getLiterals().get(0));
 
             return new Result.Success<>(Map.of("message", message));
         }catch (Exception e){
@@ -154,17 +154,17 @@ public class Scenarios {
         Lexer hi = new Lexer();
         hi.parse(arguments);
 
-        if(hi.literals.size() != 1){
+        if(hi.getLiterals().size() != 1){
             return new Result.Failure<>(null);
         }
 
         try{
             StringParser stringParser = new StringParser();
-            String term = stringParser.parse(hi.literals.get(0));
+            String term = stringParser.parse(hi.getLiterals().get(0));
             boolean isCaseInsensitive = false;
             if(hi.flags.containsKey("--case-insensitive")){
                 BooleanParser booleanParser = new BooleanParser();
-                isCaseInsensitive = booleanParser.parse(hi.flags.get("--case-insensitive").getFirst());
+                isCaseInsensitive = booleanParser.parse(hi.flags.get("--case-insensitive"));
             }
 
             return new Result.Success<>(Map.of("term", term, "case-insensitive", isCaseInsensitive));
@@ -177,13 +177,13 @@ public class Scenarios {
         Lexer hi = new Lexer();
         hi.parse(arguments);
 
-        if(hi.literals.size() != 1){
+        if(hi.getLiterals().size() != 1){
             return new Result.Failure<>(null);
         }
 
         try{
             LocalDateParser localDateParser = new LocalDateParser();
-            LocalDate date = localDateParser.parse(hi.literals.get(0));
+            LocalDate date = localDateParser.parse(hi.getLiterals().get(0));
 
 
             return new Result.Success<>(Map.of("date", date));
