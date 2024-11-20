@@ -2,6 +2,7 @@ package oop.project.library.scenarios;
 
 import oop.project.library.command.Command;
 import oop.project.library.lexer.Lexer;
+import oop.project.library.lexer.UnpairedFlagException;
 import oop.project.library.parser.*;
 
 import java.time.LocalDate;
@@ -34,16 +35,22 @@ public class Scenarios {
     private static Result<Map<String, Object>> lex(String arguments) {
         //Note: For ease of testing, this should use your Lexer implementation
         //directly rather and return those values.
+
         Lexer hi = new Lexer();
 
-        hi.parse(arguments);
+        try{
+            hi.parse(arguments);
+        }catch(UnpairedFlagException e){
+            return new Result.Failure<>(e.getMessage());
+        }
+
 
         if(!hi.getLiterals().isEmpty()){
             return new Result.Success<>(Map.of("0", hi.getLiterals().getFirst()));
         }
 
-        if(!hi.flags.isEmpty()){
-            for(var entry : hi.flags.entrySet()){
+        if(!hi.getFlags().isEmpty()){
+            for(var entry : hi.getFlags().entrySet()){
                 if(!entry.getValue().isEmpty()){
                     return new Result.Success<>(Map.of("0", entry.getValue()));
                 }
@@ -66,11 +73,12 @@ public class Scenarios {
                 .addArgument("right", new IntegerParser(), true);;
         try{
             add.parse(arguments);
-            int left = (Integer)add.getArgument("left");
-            int right = (Integer)add.getArgument("right");
+            int left = (Integer)add.getArgument("left").orElseThrow();//It shouldn't be able to fail here since the argument is required.
+            int right = (Integer)add.getArgument("right").orElseThrow();//It shouldn't be able to fail here since the argument is required.
+
             return new Result.Success<>(Map.of("left", left, "right", right));
         }catch (Exception e){
-            return new Result.Failure<>(null);
+            return new Result.Failure<>(e.getMessage());
         }
 
 
@@ -78,117 +86,93 @@ public class Scenarios {
 
     private static Result<Map<String, Object>> sub(String arguments) {
         Command sub = new Command()
-            .addArgument("left", new DoubleParser(), "--left", true)
-            .addArgument("right", new DoubleParser(), "--right", true);
+            .addArgument("left", "--left", new DoubleParser(), true)
+            .addArgument("right", "--right", new DoubleParser(), true);
 
 
         try {
             sub.parse(arguments);
-            double left = (Double)sub.getArgument("left");
-            double right = (Double)sub.getArgument("right");
+            double left = (Double)sub.getArgument("left").orElseThrow();//It shouldn't be able to fail here since the argument is required.
+            double right = (Double)sub.getArgument("right").orElseThrow();//It shouldn't be able to fail here since the argument is required.
 
             return new Result.Success<>(Map.of("left", left, "right", right));
         } catch (Exception e){
-            return new Result.Failure<>(null);
+            return new Result.Failure<>(e.getMessage());
         }
     }
 
     private static Result<Map<String, Object>> fizzbuzz(String arguments) {
-        Lexer hi = new Lexer();
-        hi.parse(arguments);
-
-        if(hi.getLiterals().size() != 1){
-            return new Result.Failure<>(null);
-        }
+        Command fizzbuzz = new Command()
+                .addArgument("input", new IntegerParser(1, 100), true);
 
         try{
-            FizzBuzzParser fizzBuzzParser = new FizzBuzzParser();
-            int number = fizzBuzzParser.parse(hi.getLiterals().getFirst());
+            fizzbuzz.parse(arguments);
+            int number = (Integer)fizzbuzz.getArgument("input").orElseThrow();//It shouldn't be able to fail here since the argument is required.
 
             return new Result.Success<>(Map.of("number", number));
         }catch (Exception e){
-            return new Result.Failure<>(null);
+            return new Result.Failure<>(e.getMessage());
         }
 
     }
 
     private static Result<Map<String, Object>> difficulty(String arguments) {
-        Lexer hi = new Lexer();
-        hi.parse(arguments);
-
-        if(hi.getLiterals().size() != 1){
-            return new Result.Failure<>(null);
-        }
+        Command command = new Command()
+                .addArgument("difficulty", new StringParser("easy", "normal", "hard", "peaceful"), true);
 
         try{
-            DifficultyParser difficultyParser = new DifficultyParser();
-            String difficulty = difficultyParser.parse(hi.getLiterals().getFirst());
+            command.parse(arguments);
+            String difficulty = (String)command.getArgument("difficulty").orElseThrow();//It shouldn't be able to fail here since the argument is required.
 
             return new Result.Success<>(Map.of("difficulty", difficulty));
+            //return new Result.Failure<>(null);
         }catch (Exception e){
-            return new Result.Failure<>(null);
+            return new Result.Failure<>(e.getMessage());
         }
     }
 
     private static Result<Map<String, Object>> echo(String arguments) {
-        Lexer hi = new Lexer();
-        hi.parse(arguments);
+        Command command = new Command()
+                .addArgument("message", new StringParser(), false);
 
-        if(hi.getLiterals().size() > 1){
-            return new Result.Failure<>(null);
-        }else if(hi.getLiterals().isEmpty()){
-            return new Result.Success<>(Map.of("message", "Echo, echo, echo!"));
-        }
 
         try{
-            StringParser stringParser = new StringParser();
-            String message = stringParser.parse(hi.getLiterals().get(0));
+            command.parse(arguments);
+            String message = (String)command.getArgument("message").orElse("Echo, echo, echo!");
 
             return new Result.Success<>(Map.of("message", message));
         }catch (Exception e){
-            return new Result.Failure<>(null);
+            return new Result.Failure<>(e.getMessage());
         }
     }
 
     private static Result<Map<String, Object>> search(String arguments) {
-        Lexer hi = new Lexer();
-        hi.parse(arguments);
-
-        if(hi.getLiterals().size() != 1){
-            return new Result.Failure<>(null);
-        }
+        Command command = new Command()
+                .addArgument("term", new StringParser(), true)
+                .addArgument("case-insensitive", "--case-insensitive", new BooleanParser(), false);
 
         try{
-            StringParser stringParser = new StringParser();
-            String term = stringParser.parse(hi.getLiterals().get(0));
-            boolean isCaseInsensitive = false;
-            if(hi.flags.containsKey("--case-insensitive")){
-                BooleanParser booleanParser = new BooleanParser();
-                isCaseInsensitive = booleanParser.parse(hi.flags.get("--case-insensitive"));
-            }
+            command.parse(arguments);
+            String term = (String)command.getArgument("term").orElseThrow();//It shouldn't be able to fail here since the argument is required.
+            boolean isCaseInsensitive = (boolean)command.getArgument("case-insensitive").orElse(false);
 
             return new Result.Success<>(Map.of("term", term, "case-insensitive", isCaseInsensitive));
         }catch (Exception e){
-            return new Result.Failure<>(null);
+            return new Result.Failure<>(e.getMessage());
         }
     }
 
     private static Result<Map<String, Object>> weekday(String arguments) {
-        Lexer hi = new Lexer();
-        hi.parse(arguments);
-
-        if(hi.getLiterals().size() != 1){
-            return new Result.Failure<>(null);
-        }
+        Command command = new Command()
+                .addArgument("date", new LocalDateParser(), true);
 
         try{
-            LocalDateParser localDateParser = new LocalDateParser();
-            LocalDate date = localDateParser.parse(hi.getLiterals().get(0));
-
+            command.parse(arguments);
+            LocalDate date = (LocalDate) command.getArgument("date").orElseThrow();//It shouldn't be able to fail here since the argument is required.
 
             return new Result.Success<>(Map.of("date", date));
         }catch (Exception e){
-            return new Result.Failure<>(null);
+            return new Result.Failure<>(e.getMessage());
         }
     }
 
