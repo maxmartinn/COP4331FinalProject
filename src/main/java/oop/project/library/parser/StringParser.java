@@ -36,7 +36,7 @@ public class StringParser implements Parser<String> {
      * @return the parsed string
      */
     @Override
-    public String parse(String input) {
+    public String parse(String input) throws StringParseException {
         //If no target strings were provided then just allow anything
         if(allowedValues == null){
             return input;

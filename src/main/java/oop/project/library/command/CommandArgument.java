@@ -1,5 +1,6 @@
 package oop.project.library.command;
 
+import oop.project.library.parser.ParseException;
 import oop.project.library.parser.Parser;
 
 class CommandArgument {
@@ -9,7 +10,7 @@ class CommandArgument {
         this.parser = parser;
     }
 
-    Object parse(String input){
+    Object parse(String input) throws ParseException {
         return parser.parse(input);
     }
 

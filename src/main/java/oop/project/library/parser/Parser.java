@@ -7,5 +7,5 @@ package oop.project.library.parser;
  * Please throw ParseExceptions or an extension of ParseException if your parser fails.
  */
 public interface Parser<T> {
-    T parse(String input);
+    T parse(String input) throws ParseException;
 }

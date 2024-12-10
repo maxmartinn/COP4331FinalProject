@@ -1,6 +1,7 @@
 package oop.project.library.command;
 
 import oop.project.library.lexer.Lexer;
+import oop.project.library.parser.ParseException;
 import oop.project.library.parser.Parser;
 
 import java.util.*;
@@ -20,6 +21,7 @@ public class Command {
 
     protected final Set<String> requiredArguments; // This is list of required argument names
 
+
     /**
      * Package protected constructor to prevent direct instantiation.
      *
@@ -38,7 +40,7 @@ public class Command {
      * @param input the input to be parsed
      * @return the parsed command
      */
-    public ParsedCommand parse(String input){
+    public ParsedCommand parse(String input) throws ParseException, CommandException {
         //Use the lexer to separate the input into easily used variables.
         Lexer lexer = new Lexer();
         lexer.parse(input);
@@ -49,20 +51,22 @@ public class Command {
         HashMap<String, Object> parsedResults = new HashMap<>();
 
         //Go through every flag the lexer found
-        lexer.getFlags().forEach((flag, rawValue) -> {
+        for (Map.Entry<String, String> entry : lexer.getFlags().entrySet()) {
+            String flag = entry.getKey();
+            String rawValue = entry.getValue();
 
-            //If the flag that was found does not correspond to any argument that was established with this command, then throw an error
-            if(!flagToName.containsKey(flag)){
-                //A flag was provided that doesn't exist
+            // If the flag that was found does not correspond to any argument that was established with this command, throw an error
+            if (!flagToName.containsKey(flag)) {
+                // A flag was provided that doesn't exist
                 throw new UnknownFlagException("Unknown flag: " + flag);
             }
 
-            //Otherwise, remove this argument from the list of required arguments
-            //And parse the value
+            // Otherwise, remove this argument from the list of required arguments
+            // And parse the value
             String name = flagToName.get(flag);
             remainingRequired.remove(name);
             parsedResults.put(name, arguments.get(name).parse(rawValue));
-        });
+        }
 
 
 

@@ -25,7 +25,7 @@ public class FloatParser extends NumberParser  {
      * @return the parsed float value, or throws a NumberParseException if the input is outside the specified bounds or cannot be parsed as a float.
      */
     @Override
-    public Float parse(String input) {
+    public Float parse(String input) throws NumberParseException  {
         try{
             float value = Float.parseFloat(input);
             if(value < (Float)min || value > (Float)max){

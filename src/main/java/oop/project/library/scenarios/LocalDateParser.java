@@ -11,7 +11,7 @@ import java.time.format.DateTimeParseException;
 //Alternatively, I have misinterpreted what you meant by that
 public class LocalDateParser implements Parser<LocalDate> {
     @Override
-    public LocalDate parse(String input) {
+    public LocalDate parse(String input) throws ParseException {
         try{
             return LocalDate.parse(input);
         }catch(DateTimeParseException e){

@@ -25,7 +25,7 @@ public class IntegerParser extends NumberParser {
      * @return the parsed int value, or throws a NumberParseException if the input is outside the specified bounds or cannot be parsed as an int.
      */
     @Override
-    public Integer parse(String input) {
+    public Integer parse(String input) throws NumberParseException {
         try{
             int value = Integer.parseInt(input);
             if(value < (Integer)min || value > (Integer)max){

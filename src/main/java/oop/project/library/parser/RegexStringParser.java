@@ -38,7 +38,7 @@ public class RegexStringParser implements Parser<String> {
      *  @return the parsed string
      */
     @Override
-    public String parse(String input) {
+    public String parse(String input) throws RegexParseException {
         //If no regexes were provided then just allow anything
         if(regexPattern == null){
             return input;

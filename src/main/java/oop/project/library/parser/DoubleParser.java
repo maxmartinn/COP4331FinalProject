@@ -25,7 +25,7 @@ public class DoubleParser extends NumberParser  {
      * @return the parsed double value, or throws a NumberParseException if the input is outside the specified bounds or cannot be parsed as a double.
      */
     @Override
-    public Double parse(String input) {
+    public Double parse(String input) throws NumberParseException  {
         try{
             double value = Double.parseDouble(input);
             if(value < (Double)min || value > (Double)max){
