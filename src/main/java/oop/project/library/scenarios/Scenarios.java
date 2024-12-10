@@ -1,6 +1,8 @@
 package oop.project.library.scenarios;
 
 import oop.project.library.command.Command;
+import oop.project.library.command.CommandBuilder;
+import oop.project.library.command.ParsedCommand;
 import oop.project.library.lexer.Lexer;
 import oop.project.library.lexer.UnpairedFlagException;
 import oop.project.library.parser.*;
@@ -52,7 +54,7 @@ public class Scenarios {
         if(!hi.getFlags().isEmpty()){
             for(var entry : hi.getFlags().entrySet()){
                 if(!entry.getValue().isEmpty()){
-                    return new Result.Success<>(Map.of("0", entry.getValue()));
+                    return new Result.Success<>(Map.of(entry.getKey(), entry.getValue()));
                 }
             }
         }
@@ -68,13 +70,14 @@ public class Scenarios {
         //var left = IntegerParser.parse(args.positional[0]);
         //This is fine - our goal right now is to implement this functionality
         //so we can build up the actual command system in Part 3.
-        Command add = new Command()
+        Command add = new CommandBuilder()
                 .addArgument("left", new IntegerParser(), true)
-                .addArgument("right", new IntegerParser(), true);;
+                .addArgument("right", new IntegerParser(), true)
+                .build();
         try{
-            add.parse(arguments);
-            int left = (Integer)add.getArgument("left").orElseThrow();//It shouldn't be able to fail here since the argument is required.
-            int right = (Integer)add.getArgument("right").orElseThrow();//It shouldn't be able to fail here since the argument is required.
+            ParsedCommand results = add.parse(arguments);
+            int left = (Integer)results.getArgument("left").orElseThrow();//It shouldn't be able to fail here since the argument is required.
+            int right = (Integer)results.getArgument("right").orElseThrow();//It shouldn't be able to fail here since the argument is required.
 
             return new Result.Success<>(Map.of("left", left, "right", right));
         }catch (Exception e){
@@ -85,15 +88,16 @@ public class Scenarios {
     }
 
     private static Result<Map<String, Object>> sub(String arguments) {
-        Command sub = new Command()
+        Command sub = new CommandBuilder()
             .addArgument("left", "--left", new DoubleParser(), true)
-            .addArgument("right", "--right", new DoubleParser(), true);
+            .addArgument("right", "--right", new DoubleParser(), true)
+            .build();;
 
 
         try {
-            sub.parse(arguments);
-            double left = (Double)sub.getArgument("left").orElseThrow();//It shouldn't be able to fail here since the argument is required.
-            double right = (Double)sub.getArgument("right").orElseThrow();//It shouldn't be able to fail here since the argument is required.
+            ParsedCommand results = sub.parse(arguments);
+            double left = (Double)results.getArgument("left").orElseThrow();//It shouldn't be able to fail here since the argument is required.
+            double right = (Double)results.getArgument("right").orElseThrow();//It shouldn't be able to fail here since the argument is required.
 
             return new Result.Success<>(Map.of("left", left, "right", right));
         } catch (Exception e){
@@ -102,12 +106,13 @@ public class Scenarios {
     }
 
     private static Result<Map<String, Object>> fizzbuzz(String arguments) {
-        Command fizzbuzz = new Command()
-                .addArgument("input", new IntegerParser(1, 100), true);
+        Command fizzbuzz = new CommandBuilder()
+                .addArgument("input", new IntegerParser(1, 100), true)
+                .build();
 
         try{
-            fizzbuzz.parse(arguments);
-            int number = (Integer)fizzbuzz.getArgument("input").orElseThrow();//It shouldn't be able to fail here since the argument is required.
+            ParsedCommand results = fizzbuzz.parse(arguments);
+            int number = (Integer)results.getArgument("input").orElseThrow();//It shouldn't be able to fail here since the argument is required.
 
             return new Result.Success<>(Map.of("number", number));
         }catch (Exception e){
@@ -117,12 +122,13 @@ public class Scenarios {
     }
 
     private static Result<Map<String, Object>> difficulty(String arguments) {
-        Command command = new Command()
-                .addArgument("difficulty", new StringParser("easy", "normal", "hard", "peaceful"), true);
+        Command command = new CommandBuilder()
+                .addArgument("difficulty", new StringParser("easy", "normal", "hard", "peaceful"), true)
+                .build();
 
         try{
-            command.parse(arguments);
-            String difficulty = (String)command.getArgument("difficulty").orElseThrow();//It shouldn't be able to fail here since the argument is required.
+            ParsedCommand results = command.parse(arguments);
+            String difficulty = (String)results.getArgument("difficulty").orElseThrow();//It shouldn't be able to fail here since the argument is required.
 
             return new Result.Success<>(Map.of("difficulty", difficulty));
             //return new Result.Failure<>(null);
@@ -132,13 +138,14 @@ public class Scenarios {
     }
 
     private static Result<Map<String, Object>> echo(String arguments) {
-        Command command = new Command()
-                .addArgument("message", new StringParser(), false);
+        Command command = new CommandBuilder()
+                .addArgument("message", new StringParser(), false)
+                .build();
 
 
         try{
-            command.parse(arguments);
-            String message = (String)command.getArgument("message").orElse("Echo, echo, echo!");
+            ParsedCommand results = command.parse(arguments);
+            String message = (String)results.getArgument("message").orElse("Echo, echo, echo...");
 
             return new Result.Success<>(Map.of("message", message));
         }catch (Exception e){
@@ -147,14 +154,15 @@ public class Scenarios {
     }
 
     private static Result<Map<String, Object>> search(String arguments) {
-        Command command = new Command()
+        Command command = new CommandBuilder()
                 .addArgument("term", new StringParser(), true)
-                .addArgument("case-insensitive", "--case-insensitive", new BooleanParser(), false);
+                .addArgument("case-insensitive", "--case-insensitive", new BooleanParser(), false)
+                .build();
 
         try{
-            command.parse(arguments);
-            String term = (String)command.getArgument("term").orElseThrow();//It shouldn't be able to fail here since the argument is required.
-            boolean isCaseInsensitive = (boolean)command.getArgument("case-insensitive").orElse(false);
+            ParsedCommand results = command.parse(arguments);
+            String term = (String)results.getArgument("term").orElseThrow();//It shouldn't be able to fail here since the argument is required.
+            boolean isCaseInsensitive = (boolean)results.getArgument("case-insensitive").orElse(false);
 
             return new Result.Success<>(Map.of("term", term, "case-insensitive", isCaseInsensitive));
         }catch (Exception e){
@@ -163,12 +171,13 @@ public class Scenarios {
     }
 
     private static Result<Map<String, Object>> weekday(String arguments) {
-        Command command = new Command()
-                .addArgument("date", new LocalDateParser(), true);
+        Command command = new CommandBuilder()
+                .addArgument("date", new LocalDateParser(), true)
+                .build();
 
         try{
-            command.parse(arguments);
-            LocalDate date = (LocalDate) command.getArgument("date").orElseThrow();//It shouldn't be able to fail here since the argument is required.
+            ParsedCommand results = command.parse(arguments);
+            LocalDate date = (LocalDate) results.getArgument("date").orElseThrow();//It shouldn't be able to fail here since the argument is required.
 
             return new Result.Success<>(Map.of("date", date));
         }catch (Exception e){

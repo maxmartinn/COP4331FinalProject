@@ -30,7 +30,7 @@ class ScenariosTests {
                 """, Map.of("0", "-2.0")),
             Arguments.of("Flag", """
                 lex --flag value
-                """, Map.of("0", "value")),
+                """, Map.of("flag", "value")),
             Arguments.of("Flag Without Value", """
                 lex --flag
                 """, null)
@@ -139,7 +139,7 @@ class ScenariosTests {
         return Stream.of(
             Arguments.of("Default", """
                 echo
-                """, Map.of("message", "Echo, echo, echo!")),
+                """, Map.of("message", "Echo, echo, echo...")),
             Arguments.of("Message", """
                 echo message
                 """, Map.of("message", "message"))

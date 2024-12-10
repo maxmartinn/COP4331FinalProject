@@ -1,5 +1,8 @@
 package oop.project.library.parser;
 
+/**
+ * A premade parser for booleans.
+ */
 public class BooleanParser implements Parser<Boolean> {
     @Override
     public Boolean parse(String input) {

@@ -1,5 +1,10 @@
 package oop.project.library.parser;
 
+
+/**
+ * An abstract Parser for Numbers
+ * Extensions of this Parser should implement inclusive upper and lower bound restrictions.
+ */
 public abstract class NumberParser implements Parser<Number> {
     protected Number min;
     protected Number max;

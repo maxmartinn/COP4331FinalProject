@@ -4,8 +4,19 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * The only reason this is public, is because you want a specific file structure.
+ * This should be package protected and in the same package as the command stuff.
+ * This is not supposed to be exposed to the end user.
+ * But I'll make JavaDocs since they can reach it.
+ */
+
+
+/**
+ * A class that parses a string of arguments into its constituent parts, including literals and flags.
+ */
 public final class Lexer {
-    private final static Pattern singleArgument = Pattern.compile("\\S+");//Pattern.compile("\"[^\"]*\"|\\S+");//Commented out because quoted strings are added yet
+    private final static Pattern singleArgument = Pattern.compile("\\S+");
     private final static Pattern literal = Pattern.compile("^-?[^-\\s]\\S*$");
     private final static Pattern flag = Pattern.compile("^--[^-\\s]\\S*$");
 
@@ -15,7 +26,11 @@ public final class Lexer {
     //A list of the flags that are found alongside their associated values
     private final Map<String, String> flags = new HashMap<>();
 
-    // parses args into its correct token pattern
+    /**
+     * Parses the given arguments into its correct token pattern.
+     *
+     * @param args the string of arguments to be parsed
+     */
     public void parse(String args){
         List<String> argList = new ArrayList<>();
 
@@ -37,14 +52,14 @@ public final class Lexer {
             if(literal.matcher(entry).matches()){
                 //If we have a literal, then we need to know if it is a positional argument or the value for a flag
                 if(isFlag){
-                    flags.put(currentFlag, entry);
+                    flags.put(currentFlag.substring(2), entry);
                     isFlag = false;
                 }else{
                     literals.add(entry);
                 }
             } else if (flag.matcher(entry).matches()){
                 //If we have a flag, we need to check if we have already seen the flag
-                if(flags.containsKey(entry)){
+                if(flags.containsKey(entry.substring(2))){
                     throw new DuplicateFlagException("The following flag was used more than once: " + entry);
                 }
 
@@ -61,8 +76,18 @@ public final class Lexer {
     }
 
 
-    //Getters
+    /**
+     * Returns the list of literals found in the input.
+     *
+     * @return the list of literals
+     */
     public List<String> getLiterals() { return this.literals; }
+
+    /**
+     * Returns the map of flags and their associated values.
+     *
+     * @return the map of flags and values
+     */
     public Map<String, String> getFlags(){ return flags; }
 
 }
